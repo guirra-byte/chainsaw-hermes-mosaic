@@ -1,6 +1,4 @@
 # Hermes Mosaic - Youtube Shorts Creator
-
-## Descrição:
 Este projeto utiliza Node.js para criar vídeos curtos do YouTube (YouTube Shorts) a partir de vídeos mais longos.
 
 ## Funcionalidades
