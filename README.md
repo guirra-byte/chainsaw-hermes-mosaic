@@ -9,3 +9,7 @@ Este projeto utiliza Node.js para criar vídeos curtos do YouTube (YouTube Short
 
 <img src="https://github.com/guirra-byte/hermes-mosaic/assets/77081114/da1d9e7c-bba8-4f46-b43b-71d22d567e1f"/>
 
+##
+<p align="center">
+    <img src="https://www.aikonbox.com.br/icons?i=typescript,nodejs,express&t=40" />
+</p>
