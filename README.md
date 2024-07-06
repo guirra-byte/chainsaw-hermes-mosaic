@@ -9,4 +9,5 @@ Este projeto utiliza Node.js para criar vídeos curtos do YouTube (YouTube Short
 - [x] Processamento em Paralelo: Aproveita o Node.js Worker Threads para processar múltiplos vídeos simultaneamente, melhorando a eficiência.
 - [ ] Integração com YouTube: Facilitar o upload automatizado dos vídeos curtos gerados para o YouTube.
 
+<img src="https://github.com/guirra-byte/hermes-mosaic/assets/77081114/da1d9e7c-bba8-4f46-b43b-71d22d567e1f"/>
 
