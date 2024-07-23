@@ -8,7 +8,7 @@ Este projeto utiliza Node.js para criar vídeos curtos do YouTube (YouTube Short
 - [ ] **`Integração com YouTube`**: Facilitar o upload automatizado dos vídeos curtos gerados para o YouTube.
 - [ ] **`Webhooks para Notificação de Finalização de Execução`**: Implementar webhooks que notificam o usuário ou outros sistemas quando a criação de um YouTube Short for concluída.
 
-<img src="https://github.com/guirra-byte/hermes-mosaic/assets/77081114/da1d9e7c-bba8-4f46-b43b-71d22d567e1f"/>
+<img src="https://github.com/user-attachments/assets/9d9532f0-7132-42a9-8de1-a39f3dd2e9cc"/>
 
 ## Stack de Tecnologias
 <p align="center">
