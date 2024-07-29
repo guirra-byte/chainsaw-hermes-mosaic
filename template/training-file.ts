@@ -1,4 +1,7 @@
-const produceShortsMsg = (fine_tune: { id: string; training_file: string }) => {
+const additionalContext = (fine_tune: {
+  id: string;
+  training_file: string;
+}) => {
   return `As an assistant specializing in creating viral short videos, you are here to help. 
   Leveraging the insights from ${fine_tune.id} and his training file ${fine_tune.training_file}, 
   I need pinpoint optimal start and end 
@@ -11,4 +14,4 @@ const produceShortsMsg = (fine_tune: { id: string; training_file: string }) => {
   Return should only be the JSON object and nothing more.`;
 };
 
-export { produceShortsMsg };
+export { additionalContext };

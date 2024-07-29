@@ -6,7 +6,7 @@ import { nanoid } from "nanoid";
 import Replicate from "replicate";
 import fs from "node:fs";
 import OpenAI from "openai";
-import { produceShortsMsg } from "../../template/training-file";
+import { additionalContext } from "../../template/training-file";
 import { secondsToTime } from "../helpers/seconds-to-time";
 
 import dotenv from "dotenv";
@@ -120,7 +120,7 @@ if (parentPort) {
               model: "gpt-3.5-turbo",
             });
 
-            const content = produceShortsMsg({
+            const content = additionalContext({
               id: fineTune.id,
               training_file: fineTune.training_file,
             });
