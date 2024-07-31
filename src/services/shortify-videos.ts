@@ -1,6 +1,5 @@
-import { parentPort } from "node:worker_threads";
+import { parentPort, Worker } from "node:worker_threads";
 import { AppFile } from "../route";
-import ffmpeg from "fluent-ffmpeg";
 import { audioDir, transcriptionDir, videosDir } from "../config/path.config";
 import { nanoid } from "nanoid";
 import Replicate from "replicate";
@@ -8,8 +7,10 @@ import fs from "node:fs";
 import OpenAI from "openai";
 import { additionalContext } from "../../template/training-file";
 import { secondsToTime } from "../helpers/seconds-to-time";
-
+import ffmpeg from "fluent-ffmpeg";
+import { workersPool, loadBalance } from "../route";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 interface Short {
@@ -17,28 +18,6 @@ interface Short {
   endTime: string;
   title: string;
   description: string;
-}
-
-// Concurrency with Worker Threads
-async function shortify(
-  video_path: string,
-  short_path: string,
-  start_time: number,
-  end_time: number,
-  out_format: string
-) {
-  ffmpeg(video_path)
-    .setStartTime(start_time)
-    .setDuration(end_time - start_time)
-    .output(short_path)
-    .toFormat(out_format)
-    .on("end", () => {
-      console.log("Corte do vídeo concluído.");
-    })
-    .on("error", (err) => {
-      console.error("Erro ao cortar o vídeo:", err);
-    })
-    .run();
 }
 
 async function dispatchToShortify(data: {
@@ -60,17 +39,18 @@ async function dispatchToShortify(data: {
     const filenameTemplate = `${prefix}_${borrow}.${data.video.mimetype}`;
 
     const [startAt, endAt] = await Promise.all([
-      secondsToTime(Number(short.startTime)),
-      secondsToTime(Number(short.endTime)),
+      secondsToTime(short.startTime),
+      secondsToTime(short.endTime),
     ]);
 
-    await shortify(
-      data.video.filepath,
-      filenameTemplate,
-      Number(startAt),
-      Number(endAt),
-      data.video.mimetype
-    );
+    if (startAt && endAt) {
+      return {
+        filename: filenameTemplate,
+        time: { start: startAt, end: endAt },
+      };
+    } else {
+      throw new Error("Trim data format is not valid.");
+    }
   }
 }
 
@@ -136,6 +116,8 @@ if (parentPort) {
               model: "gpt-3.5-turbo-1106",
             });
 
+            const workers: Worker[] = [];
+            let index = 0;
             for (const choice of completion.choices) {
               const { message } = choice;
               if (message.content) {
@@ -143,7 +125,15 @@ if (parentPort) {
                   message.content
                 );
 
-                await dispatchToShortify({
+                if (workers.length === 0) {
+                  const copies = Math.floor(
+                    shortifyData.shorts.length * (10 / 100)
+                  );
+
+                  workersPool(workers, "./trim.ts", copies);
+                }
+
+                const trimData = await dispatchToShortify({
                   shorts: shortifyData.shorts,
                   video: {
                     filepath: data.filepath,
@@ -151,9 +141,22 @@ if (parentPort) {
                     originalFilename: data.originalFilename,
                   },
                 });
+
+                if (trimData) {
+                  index += 1;
+                  const dispatchTo = await loadBalance(index, workers);
+                  dispatchTo().postMessage(JSON.stringify(trimData));
+                }
               }
             }
           });
+        })
+        .catch((reason: any) => {
+          if (reason) {
+            throw new Error(
+              `Replicate model run attempt failed; Reason ${reason}`
+            );
+          }
         });
     }
   });
