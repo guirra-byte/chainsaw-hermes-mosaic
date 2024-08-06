@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Transcription {
+  id                  String  @id
+  filename            String  @unique
+  presignedURL        String? @unique @map("presigned_url")
+  presignedURLExpired Boolean @default(false) @map("presigned_url_expired")
+  r2BucketName        String? @map("r2_bucket_name")
+  r2Key               String? @unique @map("r2_key")
+
+  videoId String @map("video_id")
+  video   Video  @relation(fields: [videoId], references: [id])
+}
+
+model Video {
+  id                  String  @id
+  size                String
+  tmpFilename         String  @map("tmp_filename")
+  originalFilename    String  @unique @map("original_filename")
+  mimetype            String
+  presignedURL        String? @unique @map("presigned_url")
+  presignedURLExpired Boolean @default(false) @map("presigned_url_expired")
+  r2BucketName        String? @map("r2_bucket_name")
+  r2Key               String? @unique @map("r2_key")
+
+  transcriptions Transcription[]
+  shorts         Short[]
+}
+
+model Short {
+  id              Int    @id @default(autoincrement())
+  originalVideoId String @map("original_video_id")
+  size            String
+  filename        String @unique
+  duration        String
+  startTime       String
+  endTime         String
+
+  video Video @relation(fields: [originalVideoId], references: [id])
+}
