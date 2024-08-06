@@ -21,6 +21,12 @@ if (parentPort) {
       ffmpeg(data.path.video)
         .setStartTime(data.time.start)
         .setDuration(duration)
+        .outputOptions([
+          "-vf",
+          "scale=1080:1920:force_original_aspect_ratio=decrease",
+          "-vf",
+          "pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+        ])
         .output(data.path.short)
         .toFormat(data.out_format)
         .on("end", () => {
