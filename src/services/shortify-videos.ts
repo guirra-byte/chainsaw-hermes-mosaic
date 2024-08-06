@@ -1,5 +1,4 @@
 import { parentPort, Worker } from "node:worker_threads";
-import { AppFile } from "../route";
 import { audioDir, transcriptionDir, videosDir } from "../config/path.config";
 import { nanoid } from "nanoid";
 import Replicate from "replicate";
@@ -8,16 +7,23 @@ import OpenAI from "openai";
 import { additionalContext } from "../../template/training-file";
 import { secondsToTime } from "../helpers/seconds-to-time";
 import ffmpeg from "fluent-ffmpeg";
-import { workersPool, loadBalance } from "../route";
 import dotenv from "dotenv";
+import { workersPool } from "../helpers/workers-pool";
+import { loadBalance } from "../helpers/load-balance";
 
 dotenv.config();
 
 interface Short {
-  startTime: string;
-  endTime: string;
   title: string;
   description: string;
+  startTime: string;
+  endTime: string;
+}
+
+interface IVideo {
+  originalFilename: string;
+  filepath: string;
+  mimetype: string;
 }
 
 async function dispatchToShortify(data: {
@@ -67,7 +73,7 @@ async function extractAudio(audio_pathname: string, local_pathname: string) {
 
 if (parentPort) {
   parentPort.on("message", async (msg: any) => {
-    const data: AppFile = JSON.parse(msg);
+    const data: IVideo = JSON.parse(msg);
     if (data) {
       const audioPathname = `${audioDir}/${nanoid()}`;
       const isolateAudio = await extractAudio(audioPathname, data.filepath);
