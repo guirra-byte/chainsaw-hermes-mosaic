@@ -40,8 +40,23 @@ model Short {
   size            String
   filename        String @unique
   duration        String
-  startTime       String
-  endTime         String
+  startTime       String @map("start_time")
+  endTime         String @map("end_time")
 
   video Video @relation(fields: [originalVideoId], references: [id])
+}
+
+model OpenAiCredentials {
+  id     Int     @id @default(autoincrement())
+  apiKey String  @unique @map("api_key")
+  inUse  Boolean @default(false) @map("in_use")
+  tagUse TagUse
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt
+}
+
+enum TagUse {
+  TRANSCRIPTION
+  FINE_TUNE
 }
